@@ -1,6 +1,6 @@
 # Headless WordPress
 
-Headless-WP is a comprehensive solution that enables you to use WordPress as a headless CMS. It builds on top of [next-wp](https://wordpress.org/plugins/headless-wc/) by 9d8dev, which created a demo application specifically for Next.js. Headless-WP is a fork of that project, aiming to create smooth integration with WordPress regardless of the framework used. Under the hood, it utilizes the default WordPress REST API, but responses and requests are primarily typed in TypeScript
+Headless-WP is a comprehensive solution that enables you to use WordPress as a headless CMS. It builds on top of [next-wp](https://github.com/9d8dev/next-wp) by 9d8dev, which created a demo application specifically for Next.js. Headless-WP is a fork of that project, aiming to create smooth integration with WordPress regardless of the framework used. Under the hood, it utilizes the default WordPress REST API, but responses and requests are primarily typed in TypeScript
 
 ## Get Started
 
@@ -112,4 +112,4 @@ These functions provide a convenient way to interact with the WordPress REST API
 
 ## Next.js Starter Project
 
-For better Next.js experience you could use original [next-wp](https://wordpress.org/plugins/headless-wc/) project
+For better Next.js experience you could use original [next-wp](https://github.com/9d8dev/next-wp) project
