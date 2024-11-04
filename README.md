@@ -14,7 +14,7 @@ const posts = await HeadlessWP.getAllPosts();
 console.log(posts);
 ```
 
-### Using NextJS / React to display posts list
+### Using Next.js / React to display posts list
 
 ```typescript
 HeadlessWP.setBaseUrl("https://your-site.com");
@@ -85,8 +85,6 @@ return posts.map(async (post) => {
 - `HeadlessWP.getPostsByTagSlug(tagSlug: string)`: Fetches all posts tagged with a specific tag by its slug.
 
 - `HeadlessWP.getFeaturedMediaById(id: number)`: Fetches the featured media (e.g., featured image) by its ID.
-
-These functions provide a convenient way to interact with the WordPress REST API and retrieve various types of data from your WordPress site. They can be used in your web application to fetch and display WordPress content.
 
 ## WordPress Types
 

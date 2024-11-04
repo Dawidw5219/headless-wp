@@ -1,14 +1,6 @@
 import { Post, Category, Tag, Page, Author, FeaturedMedia } from "./types";
 import HeadlessWP from "./index";
 
-//import querystring from 'query-string'
-// const baseUrl = process.env.WORDPRESS_URL;
-// function getUrl(path: string, query?: Record<string, any>) {
-//   const params = query ? querystring.stringify(query) : null;
-
-//   return `${baseUrl}${path}${params ? `?${params}` : ""}`;
-// }
-
 function getUrl(path: string, query?: Record<string, any>) {
   const url = new URL(path, HeadlessWP.getBaseUrl());
   if (query) {
