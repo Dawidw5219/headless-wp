@@ -9,6 +9,8 @@ Once you've installed the package (`npm install headless-wp`), you can start usi
 Important! Before making any API calls, set the base URL of your WordPress site by running `HeadlessWP.setBaseUrl("https://your-site.com")` Replace your-site.com with the URL of your WordPress site
 
 ```typescript
+import HeadlessWP from "headless-wp";
+
 HeadlessWP.setBaseUrl("https://your-site.com");
 const posts = await HeadlessWP.getAllPosts();
 console.log(posts);
@@ -17,6 +19,8 @@ console.log(posts);
 ### Using Next.js / React to display posts list
 
 ```typescript
+import HeadlessWP from "headless-wp";
+
 HeadlessWP.setBaseUrl("https://your-site.com");
 const posts = await HeadlessWP.getAllPosts();
 
