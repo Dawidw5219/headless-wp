@@ -1,26 +1,3 @@
-declare class WordPressAPIError extends Error {
-    status: number;
-    endpoint: string;
-    constructor(message: string, status: number, endpoint: string);
-}
-interface WPPaginationHeaders {
-    total: number;
-    totalPages: number;
-}
-interface WPResponse<T> {
-    data: T;
-    headers: WPPaginationHeaders;
-}
-interface WPFetchOptions {
-    tags?: string[];
-    revalidate?: number;
-}
-declare function getUrl(path: string, query?: Record<string, unknown>): string;
-declare function wpFetch<T>(path: string, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<T>;
-declare function wpFetchGraceful<T>(path: string, fallback: T, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<T>;
-declare function wpFetchPaginated<T>(path: string, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<WPResponse<T>>;
-declare function wpFetchPaginatedGraceful<T>(path: string, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<WPResponse<T[]>>;
-
 interface WPTaxonomyTermBase {
     id: number;
     name: string;
@@ -291,11 +268,66 @@ type WPTaxonomy = {
     }[]>;
 };
 
+declare class WordPressAPIError extends Error {
+    status: number;
+    endpoint: string;
+    constructor(message: string, status: number, endpoint: string);
+}
+interface WPPaginationHeaders {
+    total: number;
+    totalPages: number;
+}
+interface WPResponse<T> {
+    data: T;
+    headers: WPPaginationHeaders;
+}
+interface WPFetchOptions {
+    tags?: string[];
+    revalidate?: number;
+}
+declare function getUrl(path: string, query?: Record<string, unknown>): string;
+declare function wpFetch<T>(path: string, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<T>;
+declare function wpFetchPaginated<T>(path: string, query?: Record<string, unknown>, options?: WPFetchOptions): Promise<WPResponse<T>>;
+
+declare function getAllAuthors(): Promise<Author[]>;
+declare function getAuthorById(id: number): Promise<Author>;
+declare function getAuthorBySlug(slug: string): Promise<Author | undefined>;
+declare function searchAuthors(query: string): Promise<Author[]>;
+declare function getPostsByAuthor(authorId: number): Promise<Post[]>;
+declare function getPostsByAuthorPaginated(authorId: number, page?: number, perPage?: number): Promise<WPResponse<Post[]>>;
+declare function getPostsByAuthorSlug(authorSlug: string): Promise<Post[]>;
+
+interface CommentsQueryParams {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    after?: string;
+    author?: number[];
+    author_exclude?: number[];
+    before?: string;
+    exclude?: number[];
+    include?: number[];
+    offset?: number;
+    order?: "asc" | "desc";
+    orderby?: "date" | "date_gmt" | "id" | "include" | "post" | "parent" | "type";
+    parent?: number[];
+    parent_exclude?: number[];
+    post?: number[];
+    status?: string;
+    type?: string;
+    [key: string]: unknown;
+}
+declare function getComments(params?: CommentsQueryParams): Promise<Comment[]>;
+declare function getCommentsPaginated(params?: CommentsQueryParams): Promise<WPResponse<Comment[]>>;
+declare function getCommentById(id: number): Promise<Comment>;
+declare function getCommentsByPost(postId: number, params?: Omit<CommentsQueryParams, "post">): Promise<Comment[]>;
+declare function getCommentsByPostPaginated(postId: number, params?: Omit<CommentsQueryParams, "post">): Promise<WPResponse<Comment[]>>;
+
 interface PostTypeQueryParams {
     page?: number;
     per_page?: number;
     search?: string;
-    author?: number | number[];
+    author?: string | number | number[];
     exclude?: number[];
     include?: number[];
     offset?: number;
@@ -303,8 +335,8 @@ interface PostTypeQueryParams {
     orderby?: string;
     slug?: string | string[];
     status?: string | string[];
-    categories?: number[];
-    tags?: number[];
+    categories?: string | number[];
+    tags?: string | number[];
     _embed?: boolean;
     [key: string]: unknown;
 }
@@ -329,123 +361,54 @@ interface SearchParams {
     type?: "post" | "term" | "post-format";
     subtype?: string | string[];
 }
-declare function getPostType<T>(restBase: string, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<T[]>;
-declare function getPostTypePaginated<T>(restBase: string, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<WPResponse<T[]>>;
-declare function getPostTypeById<T>(restBase: string, id: number, options?: WPFetchOptions): Promise<T>;
-declare function getPostTypeByIdGraceful<T>(restBase: string, id: number, fallback: T, options?: WPFetchOptions): Promise<T>;
-declare function getPostTypeBySlug<T>(restBase: string, slug: string, options?: WPFetchOptions): Promise<T | undefined>;
-declare function getAllPostTypeSlugs(restBase: string, options?: WPFetchOptions): Promise<string[]>;
-declare function getTaxonomy<T>(restBase: string, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<T[]>;
-declare function getTaxonomyPaginated<T>(restBase: string, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<T[]>>;
-declare function getTaxonomyById<T>(restBase: string, id: number, options?: WPFetchOptions): Promise<T>;
-declare function getTaxonomyByIdGraceful<T>(restBase: string, id: number, fallback: T, options?: WPFetchOptions): Promise<T>;
-declare function getTaxonomyBySlug<T>(restBase: string, slug: string, options?: WPFetchOptions): Promise<T | undefined>;
-declare function getAllTaxonomySlugs(restBase: string, options?: WPFetchOptions): Promise<string[]>;
-declare function getPostsByTaxonomy<T>(postTypeRestBase: string, taxonomyParam: string, termId: number, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<T[]>;
-declare function getPostsByTaxonomyPaginated<T>(postTypeRestBase: string, taxonomyParam: string, termId: number, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<WPResponse<T[]>>;
-declare function globalSearch(query: string, params?: SearchParams, options?: WPFetchOptions): Promise<SearchResult[]>;
-declare function globalSearchPaginated(query: string, params?: SearchParams, options?: WPFetchOptions): Promise<WPResponse<SearchResult[]>>;
+declare function getPostType<T>(restBase: string, params?: PostTypeQueryParams): Promise<T[]>;
+declare function getPostTypePaginated<T>(restBase: string, params?: PostTypeQueryParams): Promise<WPResponse<T[]>>;
+declare function getPostTypeById<T>(restBase: string, id: number): Promise<T>;
+declare function getPostTypeBySlug<T>(restBase: string, slug: string): Promise<T | undefined>;
+declare function getAllPostTypeSlugs(restBase: string): Promise<{
+    slug: string;
+}[]>;
+declare function getTaxonomy<T>(restBase: string, params?: TaxonomyQueryParams): Promise<T[]>;
+declare function getTaxonomyPaginated<T>(restBase: string, params?: TaxonomyQueryParams): Promise<WPResponse<T[]>>;
+declare function getTaxonomyById<T>(restBase: string, id: number): Promise<T>;
+declare function getTaxonomyBySlug<T>(restBase: string, slug: string): Promise<T | undefined>;
+declare function getAllTaxonomySlugs(restBase: string): Promise<{
+    slug: string;
+}[]>;
+declare function getPostsByTaxonomy<T>(postTypeRestBase: string, taxonomyParam: string, termId: number, params?: PostTypeQueryParams): Promise<T[]>;
+declare function getPostsByTaxonomyPaginated<T>(postTypeRestBase: string, taxonomyParam: string, termId: number, params?: PostTypeQueryParams): Promise<WPResponse<T[]>>;
+declare function globalSearch(query: string, params?: SearchParams): Promise<SearchResult[]>;
+declare function globalSearchPaginated(query: string, params?: SearchParams): Promise<WPResponse<SearchResult[]>>;
 
-interface AuthorQueryParams {
-    page?: number;
-    per_page?: number;
-    search?: string;
-    exclude?: number[];
-    include?: number[];
-    offset?: number;
-    order?: "asc" | "desc";
-    orderby?: string;
-    slug?: string | string[];
-    roles?: string[];
-    who?: "authors";
-}
-declare function getAllAuthors(params?: AuthorQueryParams, options?: WPFetchOptions): Promise<Author[]>;
-declare function getAuthorById(id: number, options?: WPFetchOptions): Promise<Author>;
-declare function getAuthorByIdGraceful(id: number, fallback?: Author | null, options?: WPFetchOptions): Promise<Author | null>;
-declare function getAuthorBySlug(slug: string, options?: WPFetchOptions): Promise<Author | undefined>;
-declare function searchAuthors(query: string, options?: WPFetchOptions): Promise<Author[]>;
-declare function getPostsByAuthor(authorId: number, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<Post[]>;
-declare function getPostsByAuthorPaginated(authorId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<Post[]>>;
-declare function getPostsByAuthorSlug(authorSlug: string, options?: WPFetchOptions): Promise<Post[]>;
+declare function getMediaById(id: number): Promise<FeaturedMedia>;
 
-interface CommentsQueryParams {
-    page?: number;
-    per_page?: number;
-    search?: string;
-    after?: string;
-    author?: number[];
-    author_exclude?: number[];
-    before?: string;
-    exclude?: number[];
-    include?: number[];
-    offset?: number;
-    order?: "asc" | "desc";
-    orderby?: "date" | "date_gmt" | "id" | "include" | "post" | "parent" | "type";
-    parent?: number[];
-    parent_exclude?: number[];
-    post?: number[];
-    status?: string;
-    type?: string;
-    [key: string]: unknown;
-}
-declare function getComments(params?: CommentsQueryParams, options?: WPFetchOptions): Promise<Comment[]>;
-declare function getCommentsPaginated(params?: CommentsQueryParams, options?: WPFetchOptions): Promise<WPResponse<Comment[]>>;
-declare function getCommentById(id: number, options?: WPFetchOptions): Promise<Comment>;
-declare function getCommentByIdGraceful(id: number, fallback?: Comment | null, options?: WPFetchOptions): Promise<Comment | null>;
-declare function getCommentsByPost(postId: number, params?: Omit<CommentsQueryParams, "post">, options?: WPFetchOptions): Promise<Comment[]>;
-declare function getCommentsByPostPaginated(postId: number, params?: Omit<CommentsQueryParams, "post">, options?: WPFetchOptions): Promise<WPResponse<Comment[]>>;
+declare function getAllNavigations(): Promise<Navigation[]>;
+declare function getNavigationById(id: number): Promise<Navigation>;
+declare function getNavigationBySlug(slug: string): Promise<Navigation | undefined>;
 
-interface MediaQueryParams {
-    page?: number;
-    per_page?: number;
-    search?: string;
-    after?: string;
-    author?: number[];
-    author_exclude?: number[];
-    before?: string;
-    exclude?: number[];
-    include?: number[];
-    offset?: number;
-    order?: "asc" | "desc";
-    orderby?: string;
-    parent?: number[];
-    parent_exclude?: number[];
-    slug?: string | string[];
-    status?: string;
-    media_type?: "image" | "video" | "text" | "application" | "audio";
-    mime_type?: string;
-}
-declare function getAllMedia(params?: MediaQueryParams, options?: WPFetchOptions): Promise<FeaturedMedia[]>;
-declare function getMediaPaginated(page?: number, perPage?: number, params?: MediaQueryParams, options?: WPFetchOptions): Promise<WPResponse<FeaturedMedia[]>>;
-declare function getMediaById(id: number, options?: WPFetchOptions): Promise<FeaturedMedia>;
-declare function getMediaByIdGraceful(id: number, fallback?: FeaturedMedia | null, options?: WPFetchOptions): Promise<FeaturedMedia | null>;
-declare function getMediaBySlug(slug: string, options?: WPFetchOptions): Promise<FeaturedMedia | undefined>;
-declare function getFeaturedMediaById(id: number, options?: WPFetchOptions): Promise<FeaturedMedia>;
-
-declare function getAllNavigations(options?: WPFetchOptions): Promise<Navigation[]>;
-declare function getNavigationById(id: number, options?: WPFetchOptions): Promise<Navigation>;
-declare function getNavigationByIdGraceful(id: number, fallback?: Navigation | null, options?: WPFetchOptions): Promise<Navigation | null>;
-declare function getNavigationBySlug(slug: string, options?: WPFetchOptions): Promise<Navigation | undefined>;
-
-declare function getAllPages(params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<Page[]>;
-declare function getPagesPaginated(page?: number, perPage?: number, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<WPResponse<Page[]>>;
-declare function getPageById(id: number, options?: WPFetchOptions): Promise<Page>;
-declare function getPageBySlug(slug: string, options?: WPFetchOptions): Promise<Page | undefined>;
-declare function searchPages(query: string, options?: WPFetchOptions): Promise<Page[]>;
-declare function getAllPageSlugs(options?: WPFetchOptions): Promise<string[]>;
+declare function getAllPages(params?: PostTypeQueryParams): Promise<Page[]>;
+declare function getPagesPaginated(page?: number, perPage?: number, params?: PostTypeQueryParams): Promise<WPResponse<Page[]>>;
+declare function getPageById(id: number): Promise<Page>;
+declare function getPageBySlug(slug: string): Promise<Page | undefined>;
+declare function searchPages(query: string): Promise<Page[]>;
+declare function getAllPageSlugs(): Promise<{
+    slug: string;
+}[]>;
 
 interface PostsFilterParams {
-    author?: number | number[];
-    tag?: number | number[];
-    category?: number | number[];
+    author?: string;
+    tag?: string;
+    category?: string;
     search?: string;
 }
-declare function getPostsPaginated(page?: number, perPage?: number, filterParams?: PostsFilterParams, options?: WPFetchOptions): Promise<WPResponse<Post[]>>;
-declare function getAllPosts(filterParams?: PostsFilterParams, options?: WPFetchOptions): Promise<Post[]>;
-declare function getPostById(id: number, options?: WPFetchOptions): Promise<Post>;
-declare function getPostBySlug(slug: string, options?: WPFetchOptions): Promise<Post | undefined>;
-declare function searchPosts(query: string, options?: WPFetchOptions): Promise<Post[]>;
-declare function getAllPostSlugs(options?: WPFetchOptions): Promise<string[]>;
+declare function getPostsPaginated(page?: number, perPage?: number, filterParams?: PostsFilterParams): Promise<WPResponse<Post[]>>;
+declare function getAllPosts(filterParams?: PostsFilterParams): Promise<Post[]>;
+declare function getPostById(id: number): Promise<Post>;
+declare function getPostBySlug(slug: string): Promise<Post | undefined>;
+declare function searchPosts(query: string): Promise<Post[]>;
+declare function getAllPostSlugs(): Promise<{
+    slug: string;
+}[]>;
 
 type WPProduct<TACFFields = Record<string, unknown>> = {
     id: number;
@@ -510,53 +473,65 @@ type ProductBrand = WPTaxonomyTermBase & {
     };
 };
 
-declare function getAllProducts<TACFFields = Record<string, unknown>>(params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<WPProduct<TACFFields>[]>;
-declare function getProductsPaginated<TACFFields = Record<string, unknown>>(page?: number, perPage?: number, params?: PostTypeQueryParams, options?: WPFetchOptions): Promise<WPResponse<WPProduct<TACFFields>[]>>;
-declare function getProductById<TACFFields = Record<string, unknown>>(id: number, options?: WPFetchOptions): Promise<WPProduct<TACFFields>>;
-declare function getProductBySlug<TACFFields = Record<string, unknown>>(slug: string, options?: WPFetchOptions): Promise<WPProduct<TACFFields> | undefined>;
-declare function searchProducts<TACFFields = Record<string, unknown>>(query: string, options?: WPFetchOptions): Promise<WPProduct<TACFFields>[]>;
-declare function getAllProductSlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getAllProductCategories(params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<ProductCategory[]>;
-declare function getProductCategoriesPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<ProductCategory[]>>;
-declare function getProductCategoryById(id: number, options?: WPFetchOptions): Promise<ProductCategory>;
-declare function getProductCategoryBySlug(slug: string, options?: WPFetchOptions): Promise<ProductCategory | undefined>;
-declare function getAllProductCategorySlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getProductsByCategory<TACFFields = Record<string, unknown>>(categoryId: number, options?: WPFetchOptions): Promise<WPProduct<TACFFields>[]>;
-declare function getProductsByCategoryPaginated<TACFFields = Record<string, unknown>>(categoryId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<WPProduct<TACFFields>[]>>;
-declare function getAllProductTags(params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<ProductTag[]>;
-declare function getProductTagsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<ProductTag[]>>;
-declare function getProductTagById(id: number, options?: WPFetchOptions): Promise<ProductTag>;
-declare function getProductTagBySlug(slug: string, options?: WPFetchOptions): Promise<ProductTag | undefined>;
-declare function getAllProductTagSlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getProductsByTag<TACFFields = Record<string, unknown>>(tagId: number, options?: WPFetchOptions): Promise<WPProduct<TACFFields>[]>;
-declare function getProductsByTagPaginated<TACFFields = Record<string, unknown>>(tagId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<WPProduct<TACFFields>[]>>;
-declare function getAllProductBrands(params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<ProductBrand[]>;
-declare function getProductBrandsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<ProductBrand[]>>;
-declare function getProductBrandById(id: number, options?: WPFetchOptions): Promise<ProductBrand>;
-declare function getProductBrandBySlug(slug: string, options?: WPFetchOptions): Promise<ProductBrand | undefined>;
-declare function getAllProductBrandSlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getProductsByBrand<TACFFields = Record<string, unknown>>(brandId: number, options?: WPFetchOptions): Promise<WPProduct<TACFFields>[]>;
-declare function getProductsByBrandPaginated<TACFFields = Record<string, unknown>>(brandId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<WPProduct<TACFFields>[]>>;
+declare function getAllProducts<TACFFields = Record<string, unknown>>(params?: PostTypeQueryParams): Promise<WPProduct<TACFFields>[]>;
+declare function getProductsPaginated<TACFFields = Record<string, unknown>>(page?: number, perPage?: number, params?: PostTypeQueryParams): Promise<WPResponse<WPProduct<TACFFields>[]>>;
+declare function getProductById<TACFFields = Record<string, unknown>>(id: number): Promise<WPProduct<TACFFields>>;
+declare function getProductBySlug<TACFFields = Record<string, unknown>>(slug: string): Promise<WPProduct<TACFFields> | undefined>;
+declare function searchProducts<TACFFields = Record<string, unknown>>(query: string): Promise<WPProduct<TACFFields>[]>;
+declare function getAllProductSlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getAllProductCategories(params?: TaxonomyQueryParams): Promise<ProductCategory[]>;
+declare function getProductCategoriesPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams): Promise<WPResponse<ProductCategory[]>>;
+declare function getProductCategoryById(id: number): Promise<ProductCategory>;
+declare function getProductCategoryBySlug(slug: string): Promise<ProductCategory | undefined>;
+declare function getAllProductCategorySlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getProductsByCategory<TACFFields = Record<string, unknown>>(categoryId: number): Promise<WPProduct<TACFFields>[]>;
+declare function getProductsByCategoryPaginated<TACFFields = Record<string, unknown>>(categoryId: number, page?: number, perPage?: number): Promise<WPResponse<WPProduct<TACFFields>[]>>;
+declare function getAllProductTags(params?: TaxonomyQueryParams): Promise<ProductTag[]>;
+declare function getProductTagsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams): Promise<WPResponse<ProductTag[]>>;
+declare function getProductTagById(id: number): Promise<ProductTag>;
+declare function getProductTagBySlug(slug: string): Promise<ProductTag | undefined>;
+declare function getAllProductTagSlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getProductsByTag<TACFFields = Record<string, unknown>>(tagId: number): Promise<WPProduct<TACFFields>[]>;
+declare function getProductsByTagPaginated<TACFFields = Record<string, unknown>>(tagId: number, page?: number, perPage?: number): Promise<WPResponse<WPProduct<TACFFields>[]>>;
+declare function getAllProductBrands(params?: TaxonomyQueryParams): Promise<ProductBrand[]>;
+declare function getProductBrandsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams): Promise<WPResponse<ProductBrand[]>>;
+declare function getProductBrandById(id: number): Promise<ProductBrand>;
+declare function getProductBrandBySlug(slug: string): Promise<ProductBrand | undefined>;
+declare function getAllProductBrandSlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getProductsByBrand<TACFFields = Record<string, unknown>>(brandId: number): Promise<WPProduct<TACFFields>[]>;
+declare function getProductsByBrandPaginated<TACFFields = Record<string, unknown>>(brandId: number, page?: number, perPage?: number): Promise<WPResponse<WPProduct<TACFFields>[]>>;
 
-declare function getAllCategories(params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<Category[]>;
-declare function getCategoriesPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<Category[]>>;
-declare function getCategoryById(id: number, options?: WPFetchOptions): Promise<Category>;
-declare function getCategoryBySlug(slug: string, options?: WPFetchOptions): Promise<Category | undefined>;
-declare function searchCategories(query: string, options?: WPFetchOptions): Promise<Category[]>;
-declare function getAllCategorySlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getPostsByCategory(categoryId: number, options?: WPFetchOptions): Promise<Post[]>;
-declare function getPostsByCategoryPaginated(categoryId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<Post[]>>;
-declare function getPostsByCategorySlug(categorySlug: string, options?: WPFetchOptions): Promise<Post[]>;
-declare function getAllTags(params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<Tag[]>;
-declare function getTagsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams, options?: WPFetchOptions): Promise<WPResponse<Tag[]>>;
-declare function getTagById(id: number, options?: WPFetchOptions): Promise<Tag>;
-declare function getTagBySlug(slug: string, options?: WPFetchOptions): Promise<Tag | undefined>;
-declare function getTagsByPost(postId: number, options?: WPFetchOptions): Promise<Tag[]>;
-declare function searchTags(query: string, options?: WPFetchOptions): Promise<Tag[]>;
-declare function getAllTagSlugs(options?: WPFetchOptions): Promise<string[]>;
-declare function getPostsByTag(tagId: number, options?: WPFetchOptions): Promise<Post[]>;
-declare function getPostsByTagPaginated(tagId: number, page?: number, perPage?: number, options?: WPFetchOptions): Promise<WPResponse<Post[]>>;
-declare function getPostsByTagSlug(tagSlug: string, options?: WPFetchOptions): Promise<Post[]>;
+declare function getAllCategories(params?: TaxonomyQueryParams): Promise<Category[]>;
+declare function getCategoriesPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams): Promise<WPResponse<Category[]>>;
+declare function getCategoryById(id: number): Promise<Category>;
+declare function getCategoryBySlug(slug: string): Promise<Category | undefined>;
+declare function searchCategories(query: string): Promise<Category[]>;
+declare function getAllCategorySlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getPostsByCategory(categoryId: number): Promise<Post[]>;
+declare function getPostsByCategoryPaginated(categoryId: number, page?: number, perPage?: number): Promise<WPResponse<Post[]>>;
+declare function getPostsByCategorySlug(categorySlug: string): Promise<Post[]>;
+declare function getAllTags(params?: TaxonomyQueryParams): Promise<Tag[]>;
+declare function getTagsPaginated(page?: number, perPage?: number, params?: TaxonomyQueryParams): Promise<WPResponse<Tag[]>>;
+declare function getTagById(id: number): Promise<Tag>;
+declare function getTagBySlug(slug: string): Promise<Tag | undefined>;
+declare function getTagsByPost(postId: number): Promise<Tag[]>;
+declare function searchTags(query: string): Promise<Tag[]>;
+declare function getAllTagSlugs(): Promise<{
+    slug: string;
+}[]>;
+declare function getPostsByTag(tagId: number): Promise<Post[]>;
+declare function getPostsByTagPaginated(tagId: number, page?: number, perPage?: number): Promise<WPResponse<Post[]>>;
+declare function getPostsByTagSlug(tagSlug: string): Promise<Post[]>;
 
 interface ACFAttachment {
     ID: number;
@@ -704,7 +679,7 @@ type ACFRepeater<TRow> = TRow[];
 type ACFGroup<TFields> = TFields;
 type ACFRelationship = ACFPostObject[] | number[];
 type ACFPageLink = string | string[];
-type ACFImageReturnFormat = ACFImage | string | number;
+type ACFImageValue = ACFImage | string | number;
 type ACFFileReturnFormat = ACFFile | string | number;
 type ACFLinkReturnFormat = ACFLink | string;
 type ACFPostObjectReturnFormat = ACFPostObject | number;
@@ -715,4 +690,4 @@ type ACFRelationshipReturnFormat<T = ACFPostObject> = T[] | number[];
 declare function setBaseUrl(baseUrl: string): void;
 declare function getBaseUrl(): string;
 
-export { type ACFAttachment, type ACFButtonGroup, type ACFCheckbox, type ACFColorPicker, type ACFDatePicker, type ACFDateTimePicker, type ACFEmail, type ACFFile, type ACFFileReturnFormat, type ACFFlexibleContent, type ACFFlexibleContentLayout, type ACFGallery, type ACFGoogleMap, type ACFGroup, type ACFImage, type ACFImageReturnFormat, type ACFImageSizes, type ACFLink, type ACFLinkReturnFormat, type ACFNumber, type ACFOembed, type ACFPageLink, type ACFPassword, type ACFPostObject, type ACFPostObjectReturnFormat, type ACFRadio, type ACFRange, type ACFRelationship, type ACFRelationshipReturnFormat, type ACFRepeater, type ACFSelect, type ACFTaxonomyReturnFormat, type ACFTaxonomyTerm, type ACFText, type ACFTextarea, type ACFTimePicker, type ACFTrueFalse, type ACFUrl, type ACFUser, type ACFUserReturnFormat, type ACFWysiwyg, type Author, type AuthorQueryParams, type BlockType, type Category, type Comment, type CommentsQueryParams, type EditorBlock, type FeaturedMedia, type MediaQueryParams, type Navigation, type Page, type Post, type PostTypeQueryParams, type PostsFilterParams, type ProductBrand, type ProductCategory, type ProductTag, type SearchParams, type SearchResult, type Tag, type TaxonomyQueryParams, type TemplatePart, type WPFetchOptions, type WPPaginationHeaders, type WPPostType, type WPProduct, type WPResponse, type WPTaxonomy, type WPTaxonomyQuery, type WPTaxonomyTermBase, type WPTerm, WordPressAPIError, getAllAuthors, getAllCategories, getAllCategorySlugs, getAllMedia, getAllNavigations, getAllPageSlugs, getAllPages, getAllPostSlugs, getAllPostTypeSlugs, getAllPosts, getAllProductBrandSlugs, getAllProductBrands, getAllProductCategories, getAllProductCategorySlugs, getAllProductSlugs, getAllProductTagSlugs, getAllProductTags, getAllProducts, getAllTagSlugs, getAllTags, getAllTaxonomySlugs, getAuthorById, getAuthorByIdGraceful, getAuthorBySlug, getBaseUrl, getCategoriesPaginated, getCategoryById, getCategoryBySlug, getCommentById, getCommentByIdGraceful, getComments, getCommentsByPost, getCommentsByPostPaginated, getCommentsPaginated, getFeaturedMediaById, getMediaById, getMediaByIdGraceful, getMediaBySlug, getMediaPaginated, getNavigationById, getNavigationByIdGraceful, getNavigationBySlug, getPageById, getPageBySlug, getPagesPaginated, getPostById, getPostBySlug, getPostType, getPostTypeById, getPostTypeByIdGraceful, getPostTypeBySlug, getPostTypePaginated, getPostsByAuthor, getPostsByAuthorPaginated, getPostsByAuthorSlug, getPostsByCategory, getPostsByCategoryPaginated, getPostsByCategorySlug, getPostsByTag, getPostsByTagPaginated, getPostsByTagSlug, getPostsByTaxonomy, getPostsByTaxonomyPaginated, getPostsPaginated, getProductBrandById, getProductBrandBySlug, getProductBrandsPaginated, getProductById, getProductBySlug, getProductCategoriesPaginated, getProductCategoryById, getProductCategoryBySlug, getProductTagById, getProductTagBySlug, getProductTagsPaginated, getProductsByBrand, getProductsByBrandPaginated, getProductsByCategory, getProductsByCategoryPaginated, getProductsByTag, getProductsByTagPaginated, getProductsPaginated, getTagById, getTagBySlug, getTagsByPost, getTagsPaginated, getTaxonomy, getTaxonomyById, getTaxonomyByIdGraceful, getTaxonomyBySlug, getTaxonomyPaginated, getUrl, globalSearch, globalSearchPaginated, searchAuthors, searchCategories, searchPages, searchPosts, searchProducts, searchTags, setBaseUrl, wpFetch, wpFetchGraceful, wpFetchPaginated, wpFetchPaginatedGraceful };
+export { type ACFAttachment, type ACFButtonGroup, type ACFCheckbox, type ACFColorPicker, type ACFDatePicker, type ACFDateTimePicker, type ACFEmail, type ACFFile, type ACFFileReturnFormat, type ACFFlexibleContent, type ACFFlexibleContentLayout, type ACFGallery, type ACFGoogleMap, type ACFGroup, type ACFImage, type ACFImageSizes, type ACFImageValue, type ACFLink, type ACFLinkReturnFormat, type ACFNumber, type ACFOembed, type ACFPageLink, type ACFPassword, type ACFPostObject, type ACFPostObjectReturnFormat, type ACFRadio, type ACFRange, type ACFRelationship, type ACFRelationshipReturnFormat, type ACFRepeater, type ACFSelect, type ACFTaxonomyReturnFormat, type ACFTaxonomyTerm, type ACFText, type ACFTextarea, type ACFTimePicker, type ACFTrueFalse, type ACFUrl, type ACFUser, type ACFUserReturnFormat, type ACFWysiwyg, type Author, type BlockType, type Category, type Comment, type CommentsQueryParams, type EditorBlock, type FeaturedMedia, type Navigation, type Page, type Post, type PostTypeQueryParams, type PostsFilterParams, type ProductBrand, type ProductCategory, type ProductTag, type SearchParams, type SearchResult, type Tag, type TaxonomyQueryParams, type TemplatePart, type WPPaginationHeaders, type WPPostType, type WPProduct, type WPResponse, type WPTaxonomy, type WPTaxonomyQuery, type WPTaxonomyTermBase, type WPTerm, WordPressAPIError, getAllAuthors, getAllCategories, getAllCategorySlugs, getAllNavigations, getAllPageSlugs, getAllPages, getAllPostSlugs, getAllPostTypeSlugs, getAllPosts, getAllProductBrandSlugs, getAllProductBrands, getAllProductCategories, getAllProductCategorySlugs, getAllProductSlugs, getAllProductTagSlugs, getAllProductTags, getAllProducts, getAllTagSlugs, getAllTags, getAllTaxonomySlugs, getAuthorById, getAuthorBySlug, getBaseUrl, getCategoriesPaginated, getCategoryById, getCategoryBySlug, getCommentById, getComments, getCommentsByPost, getCommentsByPostPaginated, getCommentsPaginated, getMediaById, getNavigationById, getNavigationBySlug, getPageById, getPageBySlug, getPagesPaginated, getPostById, getPostBySlug, getPostType, getPostTypeById, getPostTypeBySlug, getPostTypePaginated, getPostsByAuthor, getPostsByAuthorPaginated, getPostsByAuthorSlug, getPostsByCategory, getPostsByCategoryPaginated, getPostsByCategorySlug, getPostsByTag, getPostsByTagPaginated, getPostsByTagSlug, getPostsByTaxonomy, getPostsByTaxonomyPaginated, getPostsPaginated, getProductBrandById, getProductBrandBySlug, getProductBrandsPaginated, getProductById, getProductBySlug, getProductCategoriesPaginated, getProductCategoryById, getProductCategoryBySlug, getProductTagById, getProductTagBySlug, getProductTagsPaginated, getProductsByBrand, getProductsByBrandPaginated, getProductsByCategory, getProductsByCategoryPaginated, getProductsByTag, getProductsByTagPaginated, getProductsPaginated, getTagById, getTagBySlug, getTagsByPost, getTagsPaginated, getTaxonomy, getTaxonomyById, getTaxonomyBySlug, getTaxonomyPaginated, getUrl, globalSearch, globalSearchPaginated, searchAuthors, searchCategories, searchPages, searchPosts, searchProducts, searchTags, setBaseUrl, wpFetch, wpFetchPaginated };

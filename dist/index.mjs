@@ -109,48 +109,33 @@ function buildCacheTags(restBase, extra) {
   if (extra) tags.push(...extra);
   return tags;
 }
-async function getPostType(restBase, params, options) {
+async function getPostType(restBase, params) {
   const query = { _embed: true, ...params };
   return wpFetchGraceful(`/wp-json/wp/v2/${restBase}`, [], query, {
-    tags: buildCacheTags(restBase),
-    ...options
+    tags: buildCacheTags(restBase)
   });
 }
-async function getPostTypePaginated(restBase, params, options) {
+async function getPostTypePaginated(restBase, params) {
   const query = { _embed: true, ...params };
   return wpFetchPaginatedGraceful(`/wp-json/wp/v2/${restBase}`, query, {
-    tags: buildCacheTags(restBase),
-    ...options
+    tags: buildCacheTags(restBase)
   });
 }
-async function getPostTypeById(restBase, id, options) {
-  return wpFetch(
-    `/wp-json/wp/v2/${restBase}/${id}`,
-    { _embed: true },
-    { tags: buildCacheTags(restBase, [`${restBase}-${id}`]), ...options }
-  );
+async function getPostTypeById(restBase, id) {
+  return wpFetch(`/wp-json/wp/v2/${restBase}/${id}`, { _embed: true }, {
+    tags: buildCacheTags(restBase, [`${restBase}-${id}`])
+  });
 }
-async function getPostTypeByIdGraceful(restBase, id, fallback, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/${restBase}/${id}`,
-    fallback,
-    { _embed: true },
-    { tags: buildCacheTags(restBase, [`${restBase}-${id}`]), ...options }
-  );
-}
-async function getPostTypeBySlug(restBase, slug, options) {
+async function getPostTypeBySlug(restBase, slug) {
   const items = await wpFetchGraceful(
     `/wp-json/wp/v2/${restBase}`,
     [],
     { slug, _embed: true },
-    {
-      tags: buildCacheTags(restBase, [`${restBase}-slug-${slug}`]),
-      ...options
-    }
+    { tags: buildCacheTags(restBase, [`${restBase}-slug-${slug}`]) }
   );
   return items[0];
 }
-async function getAllPostTypeSlugs(restBase, options) {
+async function getAllPostTypeSlugs(restBase) {
   const allSlugs = [];
   let page = 1;
   const perPage = 100;
@@ -158,53 +143,39 @@ async function getAllPostTypeSlugs(restBase, options) {
     const response = await wpFetchPaginated(
       `/wp-json/wp/v2/${restBase}`,
       { page, per_page: perPage, _fields: "slug" },
-      { tags: buildCacheTags(restBase, ["slugs"]), ...options }
+      { tags: buildCacheTags(restBase, ["slugs"]) }
     );
-    allSlugs.push(...response.data.map((item) => item.slug));
+    allSlugs.push(...response.data.map((item) => ({ slug: item.slug })));
     if (page >= response.headers.totalPages) break;
     page++;
   }
   return allSlugs;
 }
-async function getTaxonomy(restBase, params, options) {
+async function getTaxonomy(restBase, params) {
   return wpFetchGraceful(`/wp-json/wp/v2/${restBase}`, [], params, {
-    tags: buildCacheTags(restBase),
-    ...options
+    tags: buildCacheTags(restBase)
   });
 }
-async function getTaxonomyPaginated(restBase, params, options) {
+async function getTaxonomyPaginated(restBase, params) {
   return wpFetchPaginatedGraceful(`/wp-json/wp/v2/${restBase}`, params, {
-    tags: buildCacheTags(restBase),
-    ...options
+    tags: buildCacheTags(restBase)
   });
 }
-async function getTaxonomyById(restBase, id, options) {
+async function getTaxonomyById(restBase, id) {
   return wpFetch(`/wp-json/wp/v2/${restBase}/${id}`, void 0, {
-    tags: buildCacheTags(restBase, [`${restBase}-${id}`]),
-    ...options
+    tags: buildCacheTags(restBase, [`${restBase}-${id}`])
   });
 }
-async function getTaxonomyByIdGraceful(restBase, id, fallback, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/${restBase}/${id}`,
-    fallback,
-    void 0,
-    { tags: buildCacheTags(restBase, [`${restBase}-${id}`]), ...options }
-  );
-}
-async function getTaxonomyBySlug(restBase, slug, options) {
+async function getTaxonomyBySlug(restBase, slug) {
   const items = await wpFetchGraceful(
     `/wp-json/wp/v2/${restBase}`,
     [],
     { slug },
-    {
-      tags: buildCacheTags(restBase, [`${restBase}-slug-${slug}`]),
-      ...options
-    }
+    { tags: buildCacheTags(restBase, [`${restBase}-slug-${slug}`]) }
   );
   return items[0];
 }
-async function getAllTaxonomySlugs(restBase, options) {
+async function getAllTaxonomySlugs(restBase) {
   const allSlugs = [];
   let page = 1;
   const perPage = 100;
@@ -212,236 +183,162 @@ async function getAllTaxonomySlugs(restBase, options) {
     const response = await wpFetchPaginated(
       `/wp-json/wp/v2/${restBase}`,
       { page, per_page: perPage, _fields: "slug" },
-      { tags: buildCacheTags(restBase, ["slugs"]), ...options }
+      { tags: buildCacheTags(restBase, ["slugs"]) }
     );
-    allSlugs.push(...response.data.map((item) => item.slug));
+    allSlugs.push(...response.data.map((item) => ({ slug: item.slug })));
     if (page >= response.headers.totalPages) break;
     page++;
   }
   return allSlugs;
 }
-async function getPostsByTaxonomy(postTypeRestBase, taxonomyParam, termId, params, options) {
-  return getPostType(
-    postTypeRestBase,
-    { [taxonomyParam]: termId, ...params },
-    options
-  );
+async function getPostsByTaxonomy(postTypeRestBase, taxonomyParam, termId, params) {
+  return getPostType(postTypeRestBase, { [taxonomyParam]: termId, ...params });
 }
-async function getPostsByTaxonomyPaginated(postTypeRestBase, taxonomyParam, termId, params, options) {
-  return getPostTypePaginated(
-    postTypeRestBase,
-    { [taxonomyParam]: termId, ...params },
-    options
-  );
+async function getPostsByTaxonomyPaginated(postTypeRestBase, taxonomyParam, termId, params) {
+  return getPostTypePaginated(postTypeRestBase, {
+    [taxonomyParam]: termId,
+    ...params
+  });
 }
-async function globalSearch(query, params, options) {
+async function globalSearch(query, params) {
   return wpFetchGraceful(
     "/wp-json/wp/v2/search",
     [],
     { search: query, ...params },
-    { tags: ["wordpress", "search"], ...options }
+    { tags: ["wordpress", "search"] }
   );
 }
-async function globalSearchPaginated(query, params, options) {
+async function globalSearchPaginated(query, params) {
   return wpFetchPaginatedGraceful(
     "/wp-json/wp/v2/search",
     { search: query, ...params },
-    { tags: ["wordpress", "search"], ...options }
+    { tags: ["wordpress", "search"] }
   );
 }
 
 // src/api/authors.ts
-async function getAllAuthors(params, options) {
+async function getAllAuthors() {
   return wpFetchGraceful(
     "/wp-json/wp/v2/users",
     [],
-    { per_page: 100, ...params },
-    { tags: ["wordpress", "authors"], ...options }
+    { per_page: 100 },
+    { tags: ["wordpress", "authors"] }
   );
 }
-async function getAuthorById(id, options) {
-  return wpFetch(
-    `/wp-json/wp/v2/users/${id}`,
-    void 0,
-    { tags: ["wordpress", "authors", `author-${id}`], ...options }
-  );
+async function getAuthorById(id) {
+  return wpFetch(`/wp-json/wp/v2/users/${id}`, void 0, {
+    tags: ["wordpress", "authors", `author-${id}`]
+  });
 }
-async function getAuthorByIdGraceful(id, fallback = null, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/users/${id}`,
-    fallback,
-    void 0,
-    { tags: ["wordpress", "authors", `author-${id}`], ...options }
-  );
-}
-async function getAuthorBySlug(slug, options) {
+async function getAuthorBySlug(slug) {
   const authors = await wpFetchGraceful(
     "/wp-json/wp/v2/users",
     [],
     { slug },
-    { tags: ["wordpress", "authors", `author-slug-${slug}`], ...options }
+    { tags: ["wordpress", "authors", `author-slug-${slug}`] }
   );
   return authors[0];
 }
-async function searchAuthors(query, options) {
+async function searchAuthors(query) {
   return wpFetchGraceful(
     "/wp-json/wp/v2/users",
     [],
     { search: query, per_page: 100 },
-    { tags: ["wordpress", "authors", "search"], ...options }
+    { tags: ["wordpress", "authors", "search"] }
   );
 }
-async function getPostsByAuthor(authorId, params, options) {
-  return getPostType("posts", { author: authorId, ...params }, options);
+async function getPostsByAuthor(authorId) {
+  return getPostType("posts", { author: authorId });
 }
-async function getPostsByAuthorPaginated(authorId, page = 1, perPage = 10, options) {
-  return getPostTypePaginated(
-    "posts",
-    { author: authorId, page, per_page: perPage },
-    options
-  );
+async function getPostsByAuthorPaginated(authorId, page = 1, perPage = 9) {
+  return getPostTypePaginated("posts", {
+    author: authorId,
+    page,
+    per_page: perPage
+  });
 }
-async function getPostsByAuthorSlug(authorSlug, options) {
-  const author = await getAuthorBySlug(authorSlug, options);
+async function getPostsByAuthorSlug(authorSlug) {
+  const author = await getAuthorBySlug(authorSlug);
   if (!author) return [];
-  return getPostsByAuthor(author.id, void 0, options);
+  return getPostsByAuthor(author.id);
 }
 
 // src/api/comments.ts
-async function getComments(params, options) {
+async function getComments(params) {
   return wpFetchGraceful("/wp-json/wp/v2/comments", [], params, {
-    tags: ["wordpress", "comments"],
-    ...options
+    tags: ["wordpress", "comments"]
   });
 }
-async function getCommentsPaginated(params, options) {
+async function getCommentsPaginated(params) {
   return wpFetchPaginatedGraceful("/wp-json/wp/v2/comments", params, {
-    tags: ["wordpress", "comments"],
-    ...options
+    tags: ["wordpress", "comments"]
   });
 }
-async function getCommentById(id, options) {
+async function getCommentById(id) {
   return wpFetch(`/wp-json/wp/v2/comments/${id}`, void 0, {
-    tags: ["wordpress", "comments", `comment-${id}`],
-    ...options
+    tags: ["wordpress", "comments", `comment-${id}`]
   });
 }
-async function getCommentByIdGraceful(id, fallback = null, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/comments/${id}`,
-    fallback,
-    void 0,
-    { tags: ["wordpress", "comments", `comment-${id}`], ...options }
-  );
+async function getCommentsByPost(postId, params) {
+  return getComments({ post: [postId], ...params });
 }
-async function getCommentsByPost(postId, params, options) {
-  return getComments({ post: [postId], ...params }, options);
-}
-async function getCommentsByPostPaginated(postId, params, options) {
-  return getCommentsPaginated({ post: [postId], ...params }, options);
+async function getCommentsByPostPaginated(postId, params) {
+  return getCommentsPaginated({ post: [postId], ...params });
 }
 
 // src/api/media.ts
-async function getAllMedia(params, options) {
-  return wpFetchGraceful(
-    "/wp-json/wp/v2/media",
-    [],
-    { per_page: 100, ...params },
-    { tags: ["wordpress", "media"], ...options }
-  );
-}
-async function getMediaPaginated(page = 1, perPage = 10, params, options) {
-  return wpFetchPaginatedGraceful(
-    "/wp-json/wp/v2/media",
-    { page, per_page: perPage, ...params },
-    { tags: ["wordpress", "media"], ...options }
-  );
-}
-async function getMediaById(id, options) {
+async function getMediaById(id) {
   return wpFetch(`/wp-json/wp/v2/media/${id}`, void 0, {
-    tags: ["wordpress", "media", `media-${id}`],
-    ...options
+    tags: ["wordpress", "media", `media-${id}`]
   });
-}
-async function getMediaByIdGraceful(id, fallback = null, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/media/${id}`,
-    fallback,
-    void 0,
-    { tags: ["wordpress", "media", `media-${id}`], ...options }
-  );
-}
-async function getMediaBySlug(slug, options) {
-  const items = await wpFetchGraceful(
-    "/wp-json/wp/v2/media",
-    [],
-    { slug },
-    { tags: ["wordpress", "media", `media-slug-${slug}`], ...options }
-  );
-  return items[0];
-}
-async function getFeaturedMediaById(id, options) {
-  return getMediaById(id, options);
 }
 
 // src/api/navigation.ts
-async function getAllNavigations(options) {
+async function getAllNavigations() {
   return wpFetchGraceful(
     "/wp-json/wp/v2/navigation",
     [],
     { per_page: 100 },
-    { tags: ["wordpress", "navigation"], ...options }
+    { tags: ["wordpress", "navigation"] }
   );
 }
-async function getNavigationById(id, options) {
+async function getNavigationById(id) {
   return wpFetch(`/wp-json/wp/v2/navigation/${id}`, void 0, {
-    tags: ["wordpress", "navigation", `navigation-${id}`],
-    ...options
+    tags: ["wordpress", "navigation", `navigation-${id}`]
   });
 }
-async function getNavigationByIdGraceful(id, fallback = null, options) {
-  return wpFetchGraceful(
-    `/wp-json/wp/v2/navigation/${id}`,
-    fallback,
-    void 0,
-    { tags: ["wordpress", "navigation", `navigation-${id}`], ...options }
-  );
-}
-async function getNavigationBySlug(slug, options) {
+async function getNavigationBySlug(slug) {
   const items = await wpFetchGraceful(
     "/wp-json/wp/v2/navigation",
     [],
     { slug },
-    {
-      tags: ["wordpress", "navigation", `navigation-slug-${slug}`],
-      ...options
-    }
+    { tags: ["wordpress", "navigation", `navigation-slug-${slug}`] }
   );
   return items[0];
 }
 
 // src/api/pages.ts
-async function getAllPages(params, options) {
-  return getPostType("pages", { per_page: 100, ...params }, options);
+async function getAllPages(params) {
+  return getPostType("pages", { per_page: 100, ...params });
 }
-async function getPagesPaginated(page = 1, perPage = 10, params, options) {
-  return getPostTypePaginated(
-    "pages",
-    { page, per_page: perPage, ...params },
-    options
-  );
+async function getPagesPaginated(page = 1, perPage = 10, params) {
+  return getPostTypePaginated("pages", {
+    page,
+    per_page: perPage,
+    ...params
+  });
 }
-async function getPageById(id, options) {
-  return getPostTypeById("pages", id, options);
+async function getPageById(id) {
+  return getPostTypeById("pages", id);
 }
-async function getPageBySlug(slug, options) {
-  return getPostTypeBySlug("pages", slug, options);
+async function getPageBySlug(slug) {
+  return getPostTypeBySlug("pages", slug);
 }
-async function searchPages(query, options) {
-  return getPostType("pages", { search: query, per_page: 100 }, options);
+async function searchPages(query) {
+  return getPostType("pages", { search: query, per_page: 100 });
 }
-async function getAllPageSlugs(options) {
-  return getAllPostTypeSlugs("pages", options);
+async function getAllPageSlugs() {
+  return getAllPostTypeSlugs("pages");
 }
 
 // src/api/posts.ts
@@ -449,258 +346,255 @@ function mapFilterParams(filterParams) {
   const params = {};
   if (filterParams == null ? void 0 : filterParams.search) params.search = filterParams.search;
   if (filterParams == null ? void 0 : filterParams.author) params.author = filterParams.author;
-  if (filterParams == null ? void 0 : filterParams.tag)
-    params.tags = Array.isArray(filterParams.tag) ? filterParams.tag : [filterParams.tag];
-  if (filterParams == null ? void 0 : filterParams.category)
-    params.categories = Array.isArray(filterParams.category) ? filterParams.category : [filterParams.category];
+  if (filterParams == null ? void 0 : filterParams.tag) params.tags = filterParams.tag;
+  if (filterParams == null ? void 0 : filterParams.category) params.categories = filterParams.category;
   return params;
 }
-async function getPostsPaginated(page = 1, perPage = 10, filterParams, options) {
-  return getPostTypePaginated(
-    "posts",
-    { page, per_page: perPage, ...mapFilterParams(filterParams) },
-    options
-  );
+async function getPostsPaginated(page = 1, perPage = 9, filterParams) {
+  return getPostTypePaginated("posts", {
+    page,
+    per_page: perPage,
+    ...mapFilterParams(filterParams)
+  });
 }
-async function getAllPosts(filterParams, options) {
-  return getPostType(
-    "posts",
-    { per_page: 100, ...mapFilterParams(filterParams) },
-    options
-  );
+async function getAllPosts(filterParams) {
+  return getPostType("posts", {
+    per_page: 100,
+    ...mapFilterParams(filterParams)
+  });
 }
-async function getPostById(id, options) {
-  return getPostTypeById("posts", id, options);
+async function getPostById(id) {
+  return getPostTypeById("posts", id);
 }
-async function getPostBySlug(slug, options) {
-  return getPostTypeBySlug("posts", slug, options);
+async function getPostBySlug(slug) {
+  return getPostTypeBySlug("posts", slug);
 }
-async function searchPosts(query, options) {
-  return getPostType("posts", { search: query, per_page: 100 }, options);
+async function searchPosts(query) {
+  return getPostType("posts", { search: query, per_page: 100 });
 }
-async function getAllPostSlugs(options) {
-  return getAllPostTypeSlugs("posts", options);
+async function getAllPostSlugs() {
+  return getAllPostTypeSlugs("posts");
 }
 
 // src/api/products.ts
-async function getAllProducts(params, options) {
-  return getPostType("product", { per_page: 100, ...params }, options);
+async function getAllProducts(params) {
+  return getPostType("product", {
+    per_page: 100,
+    ...params
+  });
 }
-async function getProductsPaginated(page = 1, perPage = 10, params, options) {
-  return getPostTypePaginated(
+async function getProductsPaginated(page = 1, perPage = 10, params) {
+  return getPostTypePaginated("product", {
+    page,
+    per_page: perPage,
+    ...params
+  });
+}
+async function getProductById(id) {
+  return getPostTypeById("product", id);
+}
+async function getProductBySlug(slug) {
+  return getPostTypeBySlug("product", slug);
+}
+async function searchProducts(query) {
+  return getPostType("product", {
+    search: query,
+    per_page: 100
+  });
+}
+async function getAllProductSlugs() {
+  return getAllPostTypeSlugs("product");
+}
+async function getAllProductCategories(params) {
+  return getTaxonomy("product_cat", {
+    per_page: 100,
+    ...params
+  });
+}
+async function getProductCategoriesPaginated(page = 1, perPage = 10, params) {
+  return getTaxonomyPaginated("product_cat", {
+    page,
+    per_page: perPage,
+    ...params
+  });
+}
+async function getProductCategoryById(id) {
+  return getTaxonomyById("product_cat", id);
+}
+async function getProductCategoryBySlug(slug) {
+  return getTaxonomyBySlug("product_cat", slug);
+}
+async function getAllProductCategorySlugs() {
+  return getAllTaxonomySlugs("product_cat");
+}
+async function getProductsByCategory(categoryId) {
+  return getPostsByTaxonomy(
     "product",
-    { page, per_page: perPage, ...params },
-    options
-  );
-}
-async function getProductById(id, options) {
-  return getPostTypeById("product", id, options);
-}
-async function getProductBySlug(slug, options) {
-  return getPostTypeBySlug("product", slug, options);
-}
-async function searchProducts(query, options) {
-  return getPostType("product", { search: query, per_page: 100 }, options);
-}
-async function getAllProductSlugs(options) {
-  return getAllPostTypeSlugs("product", options);
-}
-async function getAllProductCategories(params, options) {
-  return getTaxonomy("product_cat", { per_page: 100, ...params }, options);
-}
-async function getProductCategoriesPaginated(page = 1, perPage = 10, params, options) {
-  return getTaxonomyPaginated(
     "product_cat",
-    { page, per_page: perPage, ...params },
-    options
+    categoryId
   );
 }
-async function getProductCategoryById(id, options) {
-  return getTaxonomyById("product_cat", id, options);
-}
-async function getProductCategoryBySlug(slug, options) {
-  return getTaxonomyBySlug("product_cat", slug, options);
-}
-async function getAllProductCategorySlugs(options) {
-  return getAllTaxonomySlugs("product_cat", options);
-}
-async function getProductsByCategory(categoryId, options) {
-  return getPostsByTaxonomy("product", "product_cat", categoryId, void 0, options);
-}
-async function getProductsByCategoryPaginated(categoryId, page = 1, perPage = 10, options) {
+async function getProductsByCategoryPaginated(categoryId, page = 1, perPage = 10) {
   return getPostsByTaxonomyPaginated(
     "product",
     "product_cat",
     categoryId,
-    { page, per_page: perPage },
-    options
+    { page, per_page: perPage }
   );
 }
-async function getAllProductTags(params, options) {
-  return getTaxonomy("product_tag", { per_page: 100, ...params }, options);
+async function getAllProductTags(params) {
+  return getTaxonomy("product_tag", { per_page: 100, ...params });
 }
-async function getProductTagsPaginated(page = 1, perPage = 10, params, options) {
-  return getTaxonomyPaginated(
+async function getProductTagsPaginated(page = 1, perPage = 10, params) {
+  return getTaxonomyPaginated("product_tag", {
+    page,
+    per_page: perPage,
+    ...params
+  });
+}
+async function getProductTagById(id) {
+  return getTaxonomyById("product_tag", id);
+}
+async function getProductTagBySlug(slug) {
+  return getTaxonomyBySlug("product_tag", slug);
+}
+async function getAllProductTagSlugs() {
+  return getAllTaxonomySlugs("product_tag");
+}
+async function getProductsByTag(tagId) {
+  return getPostsByTaxonomy(
+    "product",
     "product_tag",
-    { page, per_page: perPage, ...params },
-    options
+    tagId
   );
 }
-async function getProductTagById(id, options) {
-  return getTaxonomyById("product_tag", id, options);
-}
-async function getProductTagBySlug(slug, options) {
-  return getTaxonomyBySlug("product_tag", slug, options);
-}
-async function getAllProductTagSlugs(options) {
-  return getAllTaxonomySlugs("product_tag", options);
-}
-async function getProductsByTag(tagId, options) {
-  return getPostsByTaxonomy("product", "product_tag", tagId, void 0, options);
-}
-async function getProductsByTagPaginated(tagId, page = 1, perPage = 10, options) {
+async function getProductsByTagPaginated(tagId, page = 1, perPage = 10) {
   return getPostsByTaxonomyPaginated(
     "product",
     "product_tag",
     tagId,
-    { page, per_page: perPage },
-    options
+    { page, per_page: perPage }
   );
 }
-async function getAllProductBrands(params, options) {
-  return getTaxonomy("product_brand", { per_page: 100, ...params }, options);
+async function getAllProductBrands(params) {
+  return getTaxonomy("product_brand", {
+    per_page: 100,
+    ...params
+  });
 }
-async function getProductBrandsPaginated(page = 1, perPage = 10, params, options) {
-  return getTaxonomyPaginated(
+async function getProductBrandsPaginated(page = 1, perPage = 10, params) {
+  return getTaxonomyPaginated("product_brand", {
+    page,
+    per_page: perPage,
+    ...params
+  });
+}
+async function getProductBrandById(id) {
+  return getTaxonomyById("product_brand", id);
+}
+async function getProductBrandBySlug(slug) {
+  return getTaxonomyBySlug("product_brand", slug);
+}
+async function getAllProductBrandSlugs() {
+  return getAllTaxonomySlugs("product_brand");
+}
+async function getProductsByBrand(brandId) {
+  return getPostsByTaxonomy(
+    "product",
     "product_brand",
-    { page, per_page: perPage, ...params },
-    options
+    brandId
   );
 }
-async function getProductBrandById(id, options) {
-  return getTaxonomyById("product_brand", id, options);
-}
-async function getProductBrandBySlug(slug, options) {
-  return getTaxonomyBySlug("product_brand", slug, options);
-}
-async function getAllProductBrandSlugs(options) {
-  return getAllTaxonomySlugs("product_brand", options);
-}
-async function getProductsByBrand(brandId, options) {
-  return getPostsByTaxonomy("product", "product_brand", brandId, void 0, options);
-}
-async function getProductsByBrandPaginated(brandId, page = 1, perPage = 10, options) {
+async function getProductsByBrandPaginated(brandId, page = 1, perPage = 10) {
   return getPostsByTaxonomyPaginated(
     "product",
     "product_brand",
     brandId,
-    { page, per_page: perPage },
-    options
+    { page, per_page: perPage }
   );
 }
 
 // src/api/taxonomies.ts
-async function getAllCategories(params, options) {
-  return getTaxonomy(
-    "categories",
-    { per_page: 100, ...params },
-    options
-  );
+async function getAllCategories(params) {
+  return getTaxonomy("categories", { per_page: 100, ...params });
 }
-async function getCategoriesPaginated(page = 1, perPage = 10, params, options) {
-  return getTaxonomyPaginated(
-    "categories",
-    { page, per_page: perPage, ...params },
-    options
-  );
+async function getCategoriesPaginated(page = 1, perPage = 10, params) {
+  return getTaxonomyPaginated("categories", {
+    page,
+    per_page: perPage,
+    ...params
+  });
 }
-async function getCategoryById(id, options) {
-  return getTaxonomyById("categories", id, options);
+async function getCategoryById(id) {
+  return getTaxonomyById("categories", id);
 }
-async function getCategoryBySlug(slug, options) {
-  return getTaxonomyBySlug("categories", slug, options);
+async function getCategoryBySlug(slug) {
+  return getTaxonomyBySlug("categories", slug);
 }
-async function searchCategories(query, options) {
-  return getTaxonomy(
-    "categories",
-    { search: query, per_page: 100 },
-    options
-  );
+async function searchCategories(query) {
+  return getTaxonomy("categories", { search: query, per_page: 100 });
 }
-async function getAllCategorySlugs(options) {
-  return getAllTaxonomySlugs("categories", options);
+async function getAllCategorySlugs() {
+  return getAllTaxonomySlugs("categories");
 }
-async function getPostsByCategory(categoryId, options) {
-  return getPostsByTaxonomy(
-    "posts",
-    "categories",
-    categoryId,
-    void 0,
-    options
-  );
+async function getPostsByCategory(categoryId) {
+  return getPostsByTaxonomy("posts", "categories", categoryId);
 }
-async function getPostsByCategoryPaginated(categoryId, page = 1, perPage = 10, options) {
-  return getPostsByTaxonomyPaginated(
-    "posts",
-    "categories",
-    categoryId,
-    { page, per_page: perPage },
-    options
-  );
+async function getPostsByCategoryPaginated(categoryId, page = 1, perPage = 9) {
+  return getPostsByTaxonomyPaginated("posts", "categories", categoryId, {
+    page,
+    per_page: perPage
+  });
 }
-async function getPostsByCategorySlug(categorySlug, options) {
-  const category = await getCategoryBySlug(categorySlug, options);
+async function getPostsByCategorySlug(categorySlug) {
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) return [];
-  return getPostsByCategory(category.id, options);
+  return getPostsByCategory(category.id);
 }
-async function getAllTags(params, options) {
-  return getTaxonomy("tags", { per_page: 100, ...params }, options);
+async function getAllTags(params) {
+  return getTaxonomy("tags", { per_page: 100, ...params });
 }
-async function getTagsPaginated(page = 1, perPage = 10, params, options) {
-  return getTaxonomyPaginated(
-    "tags",
-    { page, per_page: perPage, ...params },
-    options
-  );
+async function getTagsPaginated(page = 1, perPage = 10, params) {
+  return getTaxonomyPaginated("tags", {
+    page,
+    per_page: perPage,
+    ...params
+  });
 }
-async function getTagById(id, options) {
-  return getTaxonomyById("tags", id, options);
+async function getTagById(id) {
+  return getTaxonomyById("tags", id);
 }
-async function getTagBySlug(slug, options) {
-  return getTaxonomyBySlug("tags", slug, options);
+async function getTagBySlug(slug) {
+  return getTaxonomyBySlug("tags", slug);
 }
-async function getTagsByPost(postId, options) {
-  return getTaxonomy("tags", { post: postId }, options);
+async function getTagsByPost(postId) {
+  return getTaxonomy("tags", { post: postId });
 }
-async function searchTags(query, options) {
-  return getTaxonomy("tags", { search: query, per_page: 100 }, options);
+async function searchTags(query) {
+  return getTaxonomy("tags", { search: query, per_page: 100 });
 }
-async function getAllTagSlugs(options) {
-  return getAllTaxonomySlugs("tags", options);
+async function getAllTagSlugs() {
+  return getAllTaxonomySlugs("tags");
 }
-async function getPostsByTag(tagId, options) {
-  return getPostsByTaxonomy("posts", "tags", tagId, void 0, options);
+async function getPostsByTag(tagId) {
+  return getPostsByTaxonomy("posts", "tags", tagId);
 }
-async function getPostsByTagPaginated(tagId, page = 1, perPage = 10, options) {
-  return getPostsByTaxonomyPaginated(
-    "posts",
-    "tags",
-    tagId,
-    { page, per_page: perPage },
-    options
-  );
+async function getPostsByTagPaginated(tagId, page = 1, perPage = 9) {
+  return getPostsByTaxonomyPaginated("posts", "tags", tagId, {
+    page,
+    per_page: perPage
+  });
 }
-async function getPostsByTagSlug(tagSlug, options) {
-  const tag = await getTagBySlug(tagSlug, options);
+async function getPostsByTagSlug(tagSlug) {
+  const tag = await getTagBySlug(tagSlug);
   if (!tag) return [];
-  return getPostsByTag(tag.id, options);
+  return getPostsByTag(tag.id);
 }
 export {
   WordPressAPIError,
   getAllAuthors,
   getAllCategories,
   getAllCategorySlugs,
-  getAllMedia,
   getAllNavigations,
   getAllPageSlugs,
   getAllPages,
@@ -719,25 +613,18 @@ export {
   getAllTags,
   getAllTaxonomySlugs,
   getAuthorById,
-  getAuthorByIdGraceful,
   getAuthorBySlug,
   getBaseUrl,
   getCategoriesPaginated,
   getCategoryById,
   getCategoryBySlug,
   getCommentById,
-  getCommentByIdGraceful,
   getComments,
   getCommentsByPost,
   getCommentsByPostPaginated,
   getCommentsPaginated,
-  getFeaturedMediaById,
   getMediaById,
-  getMediaByIdGraceful,
-  getMediaBySlug,
-  getMediaPaginated,
   getNavigationById,
-  getNavigationByIdGraceful,
   getNavigationBySlug,
   getPageById,
   getPageBySlug,
@@ -746,7 +633,6 @@ export {
   getPostBySlug,
   getPostType,
   getPostTypeById,
-  getPostTypeByIdGraceful,
   getPostTypeBySlug,
   getPostTypePaginated,
   getPostsByAuthor,
@@ -785,7 +671,6 @@ export {
   getTagsPaginated,
   getTaxonomy,
   getTaxonomyById,
-  getTaxonomyByIdGraceful,
   getTaxonomyBySlug,
   getTaxonomyPaginated,
   getUrl,
@@ -799,7 +684,5 @@ export {
   searchTags,
   setBaseUrl,
   wpFetch,
-  wpFetchGraceful,
-  wpFetchPaginated,
-  wpFetchPaginatedGraceful
+  wpFetchPaginated
 };

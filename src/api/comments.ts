@@ -1,6 +1,5 @@
 import type { Comment } from "../types/wordpress";
 import {
-	type WPFetchOptions,
 	type WPResponse,
 	wpFetch,
 	wpFetchGraceful,
@@ -30,59 +29,36 @@ export interface CommentsQueryParams {
 
 export async function getComments(
 	params?: CommentsQueryParams,
-	options?: WPFetchOptions,
 ): Promise<Comment[]> {
 	return wpFetchGraceful<Comment[]>("/wp-json/wp/v2/comments", [], params, {
 		tags: ["wordpress", "comments"],
-		...options,
 	});
 }
 
 export async function getCommentsPaginated(
 	params?: CommentsQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<Comment[]>> {
 	return wpFetchPaginatedGraceful<Comment>("/wp-json/wp/v2/comments", params, {
 		tags: ["wordpress", "comments"],
-		...options,
 	});
 }
 
-export async function getCommentById(
-	id: number,
-	options?: WPFetchOptions,
-): Promise<Comment> {
+export async function getCommentById(id: number): Promise<Comment> {
 	return wpFetch<Comment>(`/wp-json/wp/v2/comments/${id}`, undefined, {
 		tags: ["wordpress", "comments", `comment-${id}`],
-		...options,
 	});
-}
-
-export async function getCommentByIdGraceful(
-	id: number,
-	fallback: Comment | null = null,
-	options?: WPFetchOptions,
-): Promise<Comment | null> {
-	return wpFetchGraceful<Comment | null>(
-		`/wp-json/wp/v2/comments/${id}`,
-		fallback,
-		undefined,
-		{ tags: ["wordpress", "comments", `comment-${id}`], ...options },
-	);
 }
 
 export async function getCommentsByPost(
 	postId: number,
 	params?: Omit<CommentsQueryParams, "post">,
-	options?: WPFetchOptions,
 ): Promise<Comment[]> {
-	return getComments({ post: [postId], ...params }, options);
+	return getComments({ post: [postId], ...params });
 }
 
 export async function getCommentsByPostPaginated(
 	postId: number,
 	params?: Omit<CommentsQueryParams, "post">,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<Comment[]>> {
-	return getCommentsPaginated({ post: [postId], ...params }, options);
+	return getCommentsPaginated({ post: [postId], ...params });
 }

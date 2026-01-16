@@ -1,5 +1,10 @@
-import type { WPResponse, WPFetchOptions } from "../utils/fetch";
-import type { WPProduct, ProductCategory, ProductTag, ProductBrand } from "../types/woocommerce";
+import type { WPResponse } from "../utils/fetch";
+import type {
+	WPProduct,
+	ProductCategory,
+	ProductTag,
+	ProductBrand,
+} from "../types/woocommerce";
 import {
 	getPostType,
 	getPostTypePaginated,
@@ -19,234 +24,229 @@ import {
 
 export async function getAllProducts<TACFFields = Record<string, unknown>>(
 	params?: PostTypeQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields>[]> {
-	return getPostType<WPProduct<TACFFields>>("product", { per_page: 100, ...params }, options);
+	return getPostType<WPProduct<TACFFields>>("product", {
+		per_page: 100,
+		...params,
+	});
 }
 
-export async function getProductsPaginated<TACFFields = Record<string, unknown>>(
+export async function getProductsPaginated<
+	TACFFields = Record<string, unknown>,
+>(
 	page = 1,
 	perPage = 10,
 	params?: PostTypeQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<WPProduct<TACFFields>[]>> {
-	return getPostTypePaginated<WPProduct<TACFFields>>(
-		"product",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getPostTypePaginated<WPProduct<TACFFields>>("product", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
 export async function getProductById<TACFFields = Record<string, unknown>>(
 	id: number,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields>> {
-	return getPostTypeById<WPProduct<TACFFields>>("product", id, options);
+	return getPostTypeById<WPProduct<TACFFields>>("product", id);
 }
 
 export async function getProductBySlug<TACFFields = Record<string, unknown>>(
 	slug: string,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields> | undefined> {
-	return getPostTypeBySlug<WPProduct<TACFFields>>("product", slug, options);
+	return getPostTypeBySlug<WPProduct<TACFFields>>("product", slug);
 }
 
 export async function searchProducts<TACFFields = Record<string, unknown>>(
 	query: string,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields>[]> {
-	return getPostType<WPProduct<TACFFields>>("product", { search: query, per_page: 100 }, options);
+	return getPostType<WPProduct<TACFFields>>("product", {
+		search: query,
+		per_page: 100,
+	});
 }
 
-export async function getAllProductSlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllPostTypeSlugs("product", options);
+export async function getAllProductSlugs(): Promise<{ slug: string }[]> {
+	return getAllPostTypeSlugs("product");
 }
 
 export async function getAllProductCategories(
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<ProductCategory[]> {
-	return getTaxonomy<ProductCategory>("product_cat", { per_page: 100, ...params }, options);
+	return getTaxonomy<ProductCategory>("product_cat", {
+		per_page: 100,
+		...params,
+	});
 }
 
 export async function getProductCategoriesPaginated(
 	page = 1,
 	perPage = 10,
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<ProductCategory[]>> {
-	return getTaxonomyPaginated<ProductCategory>(
-		"product_cat",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getTaxonomyPaginated<ProductCategory>("product_cat", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
 export async function getProductCategoryById(
 	id: number,
-	options?: WPFetchOptions,
 ): Promise<ProductCategory> {
-	return getTaxonomyById<ProductCategory>("product_cat", id, options);
+	return getTaxonomyById<ProductCategory>("product_cat", id);
 }
 
 export async function getProductCategoryBySlug(
 	slug: string,
-	options?: WPFetchOptions,
 ): Promise<ProductCategory | undefined> {
-	return getTaxonomyBySlug<ProductCategory>("product_cat", slug, options);
+	return getTaxonomyBySlug<ProductCategory>("product_cat", slug);
 }
 
-export async function getAllProductCategorySlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllTaxonomySlugs("product_cat", options);
+export async function getAllProductCategorySlugs(): Promise<
+	{ slug: string }[]
+> {
+	return getAllTaxonomySlugs("product_cat");
 }
 
-export async function getProductsByCategory<TACFFields = Record<string, unknown>>(
-	categoryId: number,
-	options?: WPFetchOptions,
-): Promise<WPProduct<TACFFields>[]> {
-	return getPostsByTaxonomy<WPProduct<TACFFields>>("product", "product_cat", categoryId, undefined, options);
+export async function getProductsByCategory<
+	TACFFields = Record<string, unknown>,
+>(categoryId: number): Promise<WPProduct<TACFFields>[]> {
+	return getPostsByTaxonomy<WPProduct<TACFFields>>(
+		"product",
+		"product_cat",
+		categoryId,
+	);
 }
 
-export async function getProductsByCategoryPaginated<TACFFields = Record<string, unknown>>(
+export async function getProductsByCategoryPaginated<
+	TACFFields = Record<string, unknown>,
+>(
 	categoryId: number,
 	page = 1,
 	perPage = 10,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<WPProduct<TACFFields>[]>> {
 	return getPostsByTaxonomyPaginated<WPProduct<TACFFields>>(
 		"product",
 		"product_cat",
 		categoryId,
 		{ page, per_page: perPage },
-		options,
 	);
 }
 
 export async function getAllProductTags(
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<ProductTag[]> {
-	return getTaxonomy<ProductTag>("product_tag", { per_page: 100, ...params }, options);
+	return getTaxonomy<ProductTag>("product_tag", { per_page: 100, ...params });
 }
 
 export async function getProductTagsPaginated(
 	page = 1,
 	perPage = 10,
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<ProductTag[]>> {
-	return getTaxonomyPaginated<ProductTag>(
-		"product_tag",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getTaxonomyPaginated<ProductTag>("product_tag", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
-export async function getProductTagById(
-	id: number,
-	options?: WPFetchOptions,
-): Promise<ProductTag> {
-	return getTaxonomyById<ProductTag>("product_tag", id, options);
+export async function getProductTagById(id: number): Promise<ProductTag> {
+	return getTaxonomyById<ProductTag>("product_tag", id);
 }
 
 export async function getProductTagBySlug(
 	slug: string,
-	options?: WPFetchOptions,
 ): Promise<ProductTag | undefined> {
-	return getTaxonomyBySlug<ProductTag>("product_tag", slug, options);
+	return getTaxonomyBySlug<ProductTag>("product_tag", slug);
 }
 
-export async function getAllProductTagSlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllTaxonomySlugs("product_tag", options);
+export async function getAllProductTagSlugs(): Promise<{ slug: string }[]> {
+	return getAllTaxonomySlugs("product_tag");
 }
 
 export async function getProductsByTag<TACFFields = Record<string, unknown>>(
 	tagId: number,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields>[]> {
-	return getPostsByTaxonomy<WPProduct<TACFFields>>("product", "product_tag", tagId, undefined, options);
+	return getPostsByTaxonomy<WPProduct<TACFFields>>(
+		"product",
+		"product_tag",
+		tagId,
+	);
 }
 
-export async function getProductsByTagPaginated<TACFFields = Record<string, unknown>>(
+export async function getProductsByTagPaginated<
+	TACFFields = Record<string, unknown>,
+>(
 	tagId: number,
 	page = 1,
 	perPage = 10,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<WPProduct<TACFFields>[]>> {
 	return getPostsByTaxonomyPaginated<WPProduct<TACFFields>>(
 		"product",
 		"product_tag",
 		tagId,
 		{ page, per_page: perPage },
-		options,
 	);
 }
 
 export async function getAllProductBrands(
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<ProductBrand[]> {
-	return getTaxonomy<ProductBrand>("product_brand", { per_page: 100, ...params }, options);
+	return getTaxonomy<ProductBrand>("product_brand", {
+		per_page: 100,
+		...params,
+	});
 }
 
 export async function getProductBrandsPaginated(
 	page = 1,
 	perPage = 10,
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<ProductBrand[]>> {
-	return getTaxonomyPaginated<ProductBrand>(
-		"product_brand",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getTaxonomyPaginated<ProductBrand>("product_brand", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
-export async function getProductBrandById(
-	id: number,
-	options?: WPFetchOptions,
-): Promise<ProductBrand> {
-	return getTaxonomyById<ProductBrand>("product_brand", id, options);
+export async function getProductBrandById(id: number): Promise<ProductBrand> {
+	return getTaxonomyById<ProductBrand>("product_brand", id);
 }
 
 export async function getProductBrandBySlug(
 	slug: string,
-	options?: WPFetchOptions,
 ): Promise<ProductBrand | undefined> {
-	return getTaxonomyBySlug<ProductBrand>("product_brand", slug, options);
+	return getTaxonomyBySlug<ProductBrand>("product_brand", slug);
 }
 
-export async function getAllProductBrandSlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllTaxonomySlugs("product_brand", options);
+export async function getAllProductBrandSlugs(): Promise<{ slug: string }[]> {
+	return getAllTaxonomySlugs("product_brand");
 }
 
 export async function getProductsByBrand<TACFFields = Record<string, unknown>>(
 	brandId: number,
-	options?: WPFetchOptions,
 ): Promise<WPProduct<TACFFields>[]> {
-	return getPostsByTaxonomy<WPProduct<TACFFields>>("product", "product_brand", brandId, undefined, options);
+	return getPostsByTaxonomy<WPProduct<TACFFields>>(
+		"product",
+		"product_brand",
+		brandId,
+	);
 }
 
-export async function getProductsByBrandPaginated<TACFFields = Record<string, unknown>>(
+export async function getProductsByBrandPaginated<
+	TACFFields = Record<string, unknown>,
+>(
 	brandId: number,
 	page = 1,
 	perPage = 10,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<WPProduct<TACFFields>[]>> {
 	return getPostsByTaxonomyPaginated<WPProduct<TACFFields>>(
 		"product",
 		"product_brand",
 		brandId,
 		{ page, per_page: perPage },
-		options,
 	);
 }
-

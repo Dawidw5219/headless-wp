@@ -178,7 +178,7 @@ export type ACFRelationship = ACFPostObject[] | number[];
 
 export type ACFPageLink = string | string[];
 
-export type ACFImageReturnFormat = ACFImage | string | number;
+export type ACFImageValue = ACFImage | string | number;
 
 export type ACFFileReturnFormat = ACFFile | string | number;
 

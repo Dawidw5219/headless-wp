@@ -1,43 +1,43 @@
 {
-  "name": "headless-wp",
-  "version": "1.0.2",
-  "description": "WordPress Headless Solution",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "git": "git add . && git commit -m 'update' && git push origin main",
-    "deploy": "npm run build && npm publish && npm run git"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Dawidw5219/headless-wp.git"
-  },
-  "keywords": [
-    "wordpress",
-    "wp",
-    "headless"
-  ],
-  "author": "Dawid Wiewiórski & 9d8dev",
-  "license": "MIT",
-  "homepage": "https://github.com/Dawidw5219/headless-wp#readme",
-  "bugs": {
-    "url": "https://github.com/Dawidw5219/headless-wp/issues"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.2",
-    "@types/node": "^22.5.5"
-  }
+	"name": "headless-wp",
+	"version": "1.0.3",
+	"description": "WordPress Headless Solution",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"git": "git add . && git commit -m 'update' && git push origin main",
+		"deploy": "npm run build && npm publish && npm run git"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Dawidw5219/headless-wp.git"
+	},
+	"keywords": [
+		"wordpress",
+		"wp",
+		"headless"
+	],
+	"author": "Dawid Wiewiórski & 9d8dev",
+	"license": "MIT",
+	"homepage": "https://github.com/Dawidw5219/headless-wp#readme",
+	"bugs": {
+		"url": "https://github.com/Dawidw5219/headless-wp/issues"
+	},
+	"devDependencies": {
+		"tsup": "^8.0.2",
+		"@types/node": "^22.5.5"
+	}
 }

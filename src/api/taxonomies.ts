@@ -1,5 +1,5 @@
 import type { Category, Post, Tag } from "../types/wordpress";
-import type { WPFetchOptions, WPResponse } from "../utils/fetch";
+import type { WPResponse } from "../utils/fetch";
 import {
 	getAllTaxonomySlugs,
 	getPostsByTaxonomy,
@@ -13,177 +13,116 @@ import {
 
 export async function getAllCategories(
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<Category[]> {
-	return getTaxonomy<Category>(
-		"categories",
-		{ per_page: 100, ...params },
-		options,
-	);
+	return getTaxonomy<Category>("categories", { per_page: 100, ...params });
 }
 
 export async function getCategoriesPaginated(
 	page = 1,
 	perPage = 10,
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<Category[]>> {
-	return getTaxonomyPaginated<Category>(
-		"categories",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getTaxonomyPaginated<Category>("categories", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
-export async function getCategoryById(
-	id: number,
-	options?: WPFetchOptions,
-): Promise<Category> {
-	return getTaxonomyById<Category>("categories", id, options);
+export async function getCategoryById(id: number): Promise<Category> {
+	return getTaxonomyById<Category>("categories", id);
 }
 
 export async function getCategoryBySlug(
 	slug: string,
-	options?: WPFetchOptions,
 ): Promise<Category | undefined> {
-	return getTaxonomyBySlug<Category>("categories", slug, options);
+	return getTaxonomyBySlug<Category>("categories", slug);
 }
 
-export async function searchCategories(
-	query: string,
-	options?: WPFetchOptions,
-): Promise<Category[]> {
-	return getTaxonomy<Category>(
-		"categories",
-		{ search: query, per_page: 100 },
-		options,
-	);
+export async function searchCategories(query: string): Promise<Category[]> {
+	return getTaxonomy<Category>("categories", { search: query, per_page: 100 });
 }
 
-export async function getAllCategorySlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllTaxonomySlugs("categories", options);
+export async function getAllCategorySlugs(): Promise<{ slug: string }[]> {
+	return getAllTaxonomySlugs("categories");
 }
 
-export async function getPostsByCategory(
-	categoryId: number,
-	options?: WPFetchOptions,
-): Promise<Post[]> {
-	return getPostsByTaxonomy<Post>(
-		"posts",
-		"categories",
-		categoryId,
-		undefined,
-		options,
-	);
+export async function getPostsByCategory(categoryId: number): Promise<Post[]> {
+	return getPostsByTaxonomy<Post>("posts", "categories", categoryId);
 }
 
 export async function getPostsByCategoryPaginated(
 	categoryId: number,
 	page = 1,
-	perPage = 10,
-	options?: WPFetchOptions,
+	perPage = 9,
 ): Promise<WPResponse<Post[]>> {
-	return getPostsByTaxonomyPaginated<Post>(
-		"posts",
-		"categories",
-		categoryId,
-		{ page, per_page: perPage },
-		options,
-	);
+	return getPostsByTaxonomyPaginated<Post>("posts", "categories", categoryId, {
+		page,
+		per_page: perPage,
+	});
 }
 
 export async function getPostsByCategorySlug(
 	categorySlug: string,
-	options?: WPFetchOptions,
 ): Promise<Post[]> {
-	const category = await getCategoryBySlug(categorySlug, options);
+	const category = await getCategoryBySlug(categorySlug);
 	if (!category) return [];
-	return getPostsByCategory(category.id, options);
+	return getPostsByCategory(category.id);
 }
 
-export async function getAllTags(
-	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
-): Promise<Tag[]> {
-	return getTaxonomy<Tag>("tags", { per_page: 100, ...params }, options);
+export async function getAllTags(params?: TaxonomyQueryParams): Promise<Tag[]> {
+	return getTaxonomy<Tag>("tags", { per_page: 100, ...params });
 }
 
 export async function getTagsPaginated(
 	page = 1,
 	perPage = 10,
 	params?: TaxonomyQueryParams,
-	options?: WPFetchOptions,
 ): Promise<WPResponse<Tag[]>> {
-	return getTaxonomyPaginated<Tag>(
-		"tags",
-		{ page, per_page: perPage, ...params },
-		options,
-	);
+	return getTaxonomyPaginated<Tag>("tags", {
+		page,
+		per_page: perPage,
+		...params,
+	});
 }
 
-export async function getTagById(
-	id: number,
-	options?: WPFetchOptions,
-): Promise<Tag> {
-	return getTaxonomyById<Tag>("tags", id, options);
+export async function getTagById(id: number): Promise<Tag> {
+	return getTaxonomyById<Tag>("tags", id);
 }
 
-export async function getTagBySlug(
-	slug: string,
-	options?: WPFetchOptions,
-): Promise<Tag | undefined> {
-	return getTaxonomyBySlug<Tag>("tags", slug, options);
+export async function getTagBySlug(slug: string): Promise<Tag | undefined> {
+	return getTaxonomyBySlug<Tag>("tags", slug);
 }
 
-export async function getTagsByPost(
-	postId: number,
-	options?: WPFetchOptions,
-): Promise<Tag[]> {
-	return getTaxonomy<Tag>("tags", { post: postId }, options);
+export async function getTagsByPost(postId: number): Promise<Tag[]> {
+	return getTaxonomy<Tag>("tags", { post: postId });
 }
 
-export async function searchTags(
-	query: string,
-	options?: WPFetchOptions,
-): Promise<Tag[]> {
-	return getTaxonomy<Tag>("tags", { search: query, per_page: 100 }, options);
+export async function searchTags(query: string): Promise<Tag[]> {
+	return getTaxonomy<Tag>("tags", { search: query, per_page: 100 });
 }
 
-export async function getAllTagSlugs(
-	options?: WPFetchOptions,
-): Promise<string[]> {
-	return getAllTaxonomySlugs("tags", options);
+export async function getAllTagSlugs(): Promise<{ slug: string }[]> {
+	return getAllTaxonomySlugs("tags");
 }
 
-export async function getPostsByTag(
-	tagId: number,
-	options?: WPFetchOptions,
-): Promise<Post[]> {
-	return getPostsByTaxonomy<Post>("posts", "tags", tagId, undefined, options);
+export async function getPostsByTag(tagId: number): Promise<Post[]> {
+	return getPostsByTaxonomy<Post>("posts", "tags", tagId);
 }
 
 export async function getPostsByTagPaginated(
 	tagId: number,
 	page = 1,
-	perPage = 10,
-	options?: WPFetchOptions,
+	perPage = 9,
 ): Promise<WPResponse<Post[]>> {
-	return getPostsByTaxonomyPaginated<Post>(
-		"posts",
-		"tags",
-		tagId,
-		{ page, per_page: perPage },
-		options,
-	);
+	return getPostsByTaxonomyPaginated<Post>("posts", "tags", tagId, {
+		page,
+		per_page: perPage,
+	});
 }
 
-export async function getPostsByTagSlug(
-	tagSlug: string,
-	options?: WPFetchOptions,
-): Promise<Post[]> {
-	const tag = await getTagBySlug(tagSlug, options);
+export async function getPostsByTagSlug(tagSlug: string): Promise<Post[]> {
+	const tag = await getTagBySlug(tagSlug);
 	if (!tag) return [];
-	return getPostsByTag(tag.id, options);
+	return getPostsByTag(tag.id);
 }
