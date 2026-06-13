@@ -70,7 +70,46 @@ export async function wpFetch<T>(
 		);
 	}
 
-	return response.json() as Promise<T>;
+	return parseWpJson<T>(response, url);
+}
+
+// Some WP installs ship plugins that echo HTML/CSS before the REST response
+// (e.g. Contact Form 7 dumping inline `<style>` blocks for every page that
+// has ever rendered a form). That garbage breaks `response.json()`.
+// Strategy: try parsing the raw body first (happy path). If that fails, walk
+// past every HTML close tag in the first 64 KB of the body and parse what
+// remains — picking `[` from a CSS selector by accident is not enough.
+async function parseWpJson<T>(response: Response, url: string): Promise<T> {
+	const text = await response.text();
+	try {
+		return JSON.parse(text) as T;
+	} catch {
+		// Fall through to garbage-stripping path.
+	}
+
+	const HEAD_SCAN = Math.min(text.length, 64 * 1024);
+	let lastTagEnd = -1;
+	let cursor = 0;
+	while (cursor < HEAD_SCAN) {
+		const openIdx = text.indexOf("</", cursor);
+		if (openIdx === -1 || openIdx >= HEAD_SCAN) break;
+		const closeIdx = text.indexOf(">", openIdx);
+		if (closeIdx === -1) break;
+		lastTagEnd = closeIdx;
+		cursor = closeIdx + 1;
+	}
+
+	const tail =
+		lastTagEnd >= 0 ? text.slice(lastTagEnd + 1).trimStart() : text;
+	try {
+		return JSON.parse(tail) as T;
+	} catch (e) {
+		throw new WordPressAPIError(
+			`WordPress API returned non-JSON response: ${e instanceof Error ? e.message : String(e)}`,
+			response.status,
+			url,
+		);
+	}
 }
 
 export async function wpFetchGraceful<T>(
@@ -117,7 +156,7 @@ export async function wpFetchPaginated<T>(
 	}
 
 	return {
-		data: (await response.json()) as T,
+		data: await parseWpJson<T>(response, url),
 		headers: {
 			total: parseInt(response.headers.get("X-WP-Total") || "0", 10),
 			totalPages: parseInt(response.headers.get("X-WP-TotalPages") || "0", 10),
